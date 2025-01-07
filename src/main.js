@@ -1,61 +1,49 @@
-import { request, AddressPurpose, RpcErrorCode } from 'sats-connect';
+import { request, RpcErrorCode } from 'sats-connect';
 
-async function connectWalletAndSign() {
+async function connectAndPlayVideo() {
   try {
-    // Richiedi la connessione al wallet con gli indirizzi desiderati
+    // 1) Richiesta di connessione al wallet (Xverse)
     const connectResponse = await request('wallet_connect', {
-      addresses: ['payment', 'ordinals'],
-      message: 'Questa app vuole connettersi al tuo wallet!'
+      addresses: ['ordinals', 'payment', 'stacks'], // quali tipi di indirizzi vuoi
+      message: 'Connettiti per avviare il video in full screen!'
     });
 
+    console.log('connectResponse:', connectResponse);
+
     if (connectResponse.status === 'success') {
-      console.log('Risposta wallet_connect:', connectResponse);
-
-      // Estrai gli indirizzi richiesti
-      const paymentAddress = connectResponse.addresses.find(
-        (address) => address.purpose === AddressPurpose.Payment
-      );
-      const ordinalsAddress = connectResponse.addresses.find(
-        (address) => address.purpose === AddressPurpose.Ordinals
-      );
-
-      if (paymentAddress) {
-        console.log('Indirizzo di pagamento:', paymentAddress.address);
-      }
-      if (ordinalsAddress) {
-        console.log('Indirizzo ordinals:', ordinalsAddress.address);
+      // 2) Se la connessione è avvenuta, avviamo il video
+      const videoEl = document.getElementById('myVideo');
+      
+      // Se stava nascosto, lo mostriamo
+      videoEl.style.display = 'block';
+      
+      // Proviamo a mandarlo in full screen (se il browser lo consente)
+      if (videoEl.requestFullscreen) {
+        await videoEl.requestFullscreen();
       }
 
-      // Firma un messaggio con l'indirizzo di pagamento (esempio)
-      const messageToSign = 'Questo è un messaggio di test da firmare.';
-      const signResponse = await request('signMessage', {
-        address: paymentAddress.address, // Usa l'indirizzo di pagamento
-        message: messageToSign
+      // Facciamo partire la riproduzione
+      await videoEl.play().catch((err) => {
+        console.warn('Impossibile avviare la riproduzione automatica:', err);
       });
 
-      if (signResponse.status === 'success') {
-        console.log('Firma completata con successo:', signResponse);
-        alert('Messaggio firmato con successo!');
-      } else {
-        if (signResponse.error.code === RpcErrorCode.USER_REJECTION) {
-          alert('Firma annullata dall'utente.');
-        } else {
-          alert('Errore nella firma del messaggio: ' + signResponse.error.message);
-        }
-      }
     } else {
-      if (connectResponse.error.code === RpcErrorCode.USER_REJECTION) {
-        alert('Connessione annullata dall'utente.');
+      // 3) Se la connessione non è "success", può essere un errore o un rifiuto utente
+      if (connectResponse.error?.code === RpcErrorCode.USER_REJECTION) {
+        alert('Connessione annullata dall’utente.');
       } else {
-        alert('Errore nella connessione: ' + connectResponse.error.message);
+        alert(
+          'Errore durante la connessione: ' +
+            (connectResponse.error?.message || 'Sconosciuto')
+        );
       }
     }
   } catch (error) {
-    console.error('Errore durante il processo:', error);
-    alert('Errore durante il processo: ' + error.message);
+    console.error('Errore generale:', error);
+    alert('Errore durante la connessione al wallet: ' + error.message);
   }
 }
 
 document
   .getElementById('connectWalletBtn')
-  .addEventListener('click', connectWalletAndSign);
+  .addEventListener('click', connectAndPlayVideo);

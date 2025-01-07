@@ -2,26 +2,27 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>SatsConnect getAddresses + signMessage</title>
+    <title>Connect & Fullscreen Video</title>
   </head>
-  <body style="margin:0; padding:0; font-family:sans-serif;">
-    <div
-      style="
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-      "
+  <body style="margin:0; padding:0; font-family: sans-serif;">
+    <button
+      id="connectWalletBtn"
+      style="position: absolute; top: 20px; left: 20px; padding: 1rem;"
     >
-      <button
-        id="connectWalletBtn"
-        style="font-size:1.2rem; padding:1rem; cursor: pointer;"
-      >
-        Connect & Sign
-      </button>
-    </div>
+      Connect Wallet
+    </button>
 
-    <!-- Il nostro script principale -->
+    <!-- Contenitore video nascosto inizialmente (display:none) -->
+    <video
+    id="myVideo"
+    width="100%"
+    height="100%"
+    style="display: none"
+    controls
+    src="/myvideo.mp4"
+  ></video>
+  
+
     <script type="module" src="./src/main.js"></script>
   </body>
 </html>
