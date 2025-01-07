@@ -1,87 +1,61 @@
-import {
-  request,
-  AddressPurpose,
-  RpcErrorCode
-} from 'sats-connect';
+import { request, AddressPurpose, RpcErrorCode } from 'sats-connect';
 
-async function connectWallet() {
+async function connectWalletAndSign() {
   try {
-    // 1) Per prima cosa, chiediamo il permesso di connetterci col wallet:
-    const accountsResponse = await request('getAccounts', {
-      purposes: [
-        AddressPurpose.Payment,
-        AddressPurpose.Ordinals,
-        AddressPurpose.Stacks,
-      ],
+    // Richiedi la connessione al wallet con gli indirizzi desiderati
+    const connectResponse = await request('wallet_connect', {
+      addresses: ['payment', 'ordinals'],
       message: 'Questa app vuole connettersi al tuo wallet!'
     });
 
-    console.log('accountsResponse:', accountsResponse);
+    if (connectResponse.status === 'success') {
+      console.log('Risposta wallet_connect:', connectResponse);
 
-    if (accountsResponse.status !== 'success') {
-      alert('Connessione annullata o errore');
-      return;
-    }
-    alert('Wallet connesso con successo!');
-
-    // 2) Recuperiamo gli indirizzi specifici (Ordinals, Payment, ecc.)
-    const addressesResponse = await request('getAddresses', {
-      purposes: ['ordinals', 'payment'],
-      message: 'Recupero dei tuoi indirizzi per la firma'
-    });
-
-    console.log('addressesResponse:', addressesResponse);
-
-    if (addressesResponse.status !== 'success') {
-      alert('Errore nel recupero degli indirizzi o richiesta annullata.');
-      return;
-    }
-
-    // 3) Cerchiamo un indirizzo di tipo "payment" (p2sh o p2wpkh)
-    const paymentAddressItem = addressesResponse.result.find(
-      (item) => item.purpose === 'payment'
-    );
-
-    if (!paymentAddressItem) {
-      alert('Nessun indirizzo di tipo payment trovato.');
-      return;
-    }
-
-    // 4) Facciamo firmare un messaggio con l’indirizzo payment
-    const signResponse = await request('signMessage', {
-      address: paymentAddressItem.address,
-      message: 'Hello from SatsConnect!',
-      // protocol: 'ECDSA' // facoltativo, se vuoi forzare ECDSA
-      // protocol: 'BIP322' // facoltativo, se vuoi forzare BIP322
-    });
-
-    console.log('signResponse:', signResponse);
-
-    if (signResponse.status === 'success') {
-      // Firma avvenuta con successo
-      alert(
-        'Messaggio firmato!\n\n' +
-          'Signature: ' + signResponse.signature + '\n' +
-          'Message Hash: ' + signResponse.messageHash + '\n' +
-          'Address: ' + signResponse.address
+      // Estrai gli indirizzi richiesti
+      const paymentAddress = connectResponse.addresses.find(
+        (address) => address.purpose === AddressPurpose.Payment
       );
-    } else {
-      // Se la firma non è "success", è un errore o rifiuto
-      if (signResponse.error?.code === RpcErrorCode.USER_REJECTION) {
-        alert('Richiesta di firma annullata dall’utente.');
+      const ordinalsAddress = connectResponse.addresses.find(
+        (address) => address.purpose === AddressPurpose.Ordinals
+      );
+
+      if (paymentAddress) {
+        console.log('Indirizzo di pagamento:', paymentAddress.address);
+      }
+      if (ordinalsAddress) {
+        console.log('Indirizzo ordinals:', ordinalsAddress.address);
+      }
+
+      // Firma un messaggio con l'indirizzo di pagamento (esempio)
+      const messageToSign = 'Questo è un messaggio di test da firmare.';
+      const signResponse = await request('signMessage', {
+        address: paymentAddress.address, // Usa l'indirizzo di pagamento
+        message: messageToSign
+      });
+
+      if (signResponse.status === 'success') {
+        console.log('Firma completata con successo:', signResponse);
+        alert('Messaggio firmato con successo!');
       } else {
-        alert(
-          'Errore durante la firma: ' + (signResponse.error?.message || 'Sconosciuto')
-        );
+        if (signResponse.error.code === RpcErrorCode.USER_REJECTION) {
+          alert('Firma annullata dall'utente.');
+        } else {
+          alert('Errore nella firma del messaggio: ' + signResponse.error.message);
+        }
+      }
+    } else {
+      if (connectResponse.error.code === RpcErrorCode.USER_REJECTION) {
+        alert('Connessione annullata dall'utente.');
+      } else {
+        alert('Errore nella connessione: ' + connectResponse.error.message);
       }
     }
   } catch (error) {
-    console.error('Errore generale:', error);
-    alert('Si è verificato un errore: ' + error.message);
+    console.error('Errore durante il processo:', error);
+    alert('Errore durante il processo: ' + error.message);
   }
 }
 
-// Collega la funzione al click sul pulsante
 document
   .getElementById('connectWalletBtn')
-  .addEventListener('click', connectWallet);
+  .addEventListener('click', connectWalletAndSign);
