@@ -2,10 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Connect & GIF</title>
-    <!-- Collega il foglio di stile -->
-    <script type="module" crossorigin src="/burnsite/assets/index-CKXTldVX.js"></script>
-    <link rel="stylesheet" crossorigin href="/burnsite/assets/index-oKagGwT0.css">
+    <title>Connect & Burn Video</title>
+    <!-- Collega il CSS principale -->
+    <script type="module" crossorigin src="/burnsite/assets/index-B5bbL7nQ.js"></script>
+    <link rel="stylesheet" crossorigin href="/burnsite/assets/index-CSmc7m4T.css">
   </head>
   <body>
     <!-- Pulsante CONNECT WALLET -->
@@ -13,23 +13,26 @@
       CONNECT WALLET
     </button>
 
-    <!-- GIF a tutto schermo, inizialmente nascosta -->
+    <!-- VIDEO a schermo intero, nascosto inizialmente.
+         autoplay + muted + playsinline => parte subito in silenzioso -->
+    <video
+      id="burnVideo"
+      class="fullscreen-video hidden"
+      src="/burnsite/burn.mp4"
+      autoplay
+      playsinline
+      muted
+    ></video>
+
+    <!-- Immagine finale, nascosta finché non termina il video -->
     <img
-      id="myGif"
-      src="/burnsite/myvideo.gif"
-      alt="GIF animata"
-      class="fullscreen-gif hidden"
+      id="burnImage"
+      src="/burnsite/burn.png"
+      alt="Burn Image"
+      class="fullscreen-video hidden"
     />
 
-    <!-- Immagine finale (screenshot), inizialmente nascosta -->
-    <img
-      id="finalFrame"
-      src="/framefinale.png"
-      alt="Frame Finale"
-      class="fullscreen-gif hidden"
-    />
-
-    <!-- Contenitore per le istruzioni finali, stile macchina da scrivere -->
+    <!-- Contenitore per il testo (prima e seconda fase) -->
     <div id="instructions" class="instructions hidden"></div>
 
     <!-- Script principale -->

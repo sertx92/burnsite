@@ -1,17 +1,23 @@
-/* Eliminiamo margini/padding di default */
+/* Reset di base */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
   }
   
-  /* Corpo pagina a pieno schermo */
-  html, body {
+  /* Pagina a pieno schermo, sfondo nero */
+  html,
+  body {
     width: 100%;
     height: 100%;
     background: black;
-    font-family: "Courier New", monospace; /* font "rovinato"? Ci proviamo con Courier */
     overflow: hidden; /* niente scrollbar */
+  }
+  
+  /* Carichiamo il font personalizzato burn.ttf */
+  @font-face {
+    font-family: 'BurnFont';
+    src: url('./fonts/burn.ttf') format('truetype');
   }
   
   /* Pulsante CONNECT WALLET */
@@ -24,8 +30,7 @@
     background: transparent;
     color: white;
     text-transform: uppercase;
-  
-    font-family: "Courier New", monospace;
+    font-family: 'BurnFont', sans-serif;
     font-size: 1.8rem;
     letter-spacing: 2px;
     border: 3px solid rgba(255, 255, 255, 0.6);
@@ -37,8 +42,8 @@
     border-color: white;
   }
   
-  /* GIF a tutto schermo */
-  .fullscreen-gif {
+  /* Video e immagine a tutto schermo */
+  .fullscreen-video {
     position: absolute;
     top: 0;
     left: 0;
@@ -47,22 +52,52 @@
     object-fit: cover;
   }
   
-  /* Inizialmente nascosto */
+  /* Elementi nascosti */
   .hidden {
     display: none;
   }
   
-  /* Istruzioni finali (typewriter) */
+  /* Contenitore globale del testo digitato */
   .instructions {
     position: absolute;
-    top: 50%;
+    top: 20%;
     left: 50%;
     width: 80%;
-    color: white;
-    font-size: 2rem;
     transform: translate(-50%, -50%);
-    text-align: center;
+    /* Per l'animazione "uscita verso l'alto" */
+    transition: transform 0.8s ease-in-out;
+  
+    color: white;
+    font-family: 'BurnFont', sans-serif;
+    font-size: 2rem;
     line-height: 1.5;
-    white-space: pre-wrap; /* per vedere i \n */
+    white-space: pre-wrap; /* gestisce \n */
+    text-align: center;
+  }
+  
+  /* Ogni riga di testo */
+  .instructions-line {
+    position: absolute;
+    width: 100%;
+    /* Niente background “macchia” */
+    padding: 0.3rem 0.6rem;
+  }
+  
+  /* Pulsante "BURN" (seconda fase) */
+  .burn-btn {
+    position: absolute;
+    padding: 1rem 2rem;
+    background: black;
+    color: white;
+    border: 2px solid white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    font-family: 'BurnFont', sans-serif;
+    text-transform: uppercase;
+    transition: background 0.3s;
+  }
+  
+  .burn-btn:hover {
+    background: #333;
   }
   

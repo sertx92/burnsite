@@ -1,50 +1,125 @@
 import { request, RpcErrorCode } from 'sats-connect';
 
-// 1) Imposta la durata della GIF in millisecondi
-const GIF_DURATION = 2000; // 5 secondi
+// Variabile per gestire il primo testo
+let hasTypedFirstText = false;
 
-// 2) Righe da mostrare con l'effetto typewriter
-const instructionsLines = [
-  'BURN 1 -> GET 1',
-  'BURN 2 -> GET 2',
-  'BURN 3 -> GET 3',
+/*
+  PRIMA FASE (firstLines):
+  - Trasformiamo ogni "riga" in un oggetto con "align" e "segments".
+  - Ogni "segments" è un array di pezzi { text, color }, così possiamo colorare selettivamente.
+*/
+
+const firstLines = [
+  // 1) BURN MECHANICS
+  {
+    align: 'center',
+    segments: [
+      { text: 'BURN MECHANICS', color: '#fff' }
+    ]
+  },
+
+  {
+    align: 'left',
+    segments: [
+      { text: 'BURN ', color: '#fff' },
+      { text: '3x', color: '#ffc700' },        
+      { text: ' COMMON KINGDOM ', color: '#ffc700' },
+      { text: 'PUPPETS', color: '#ffc700' },   
+      { text: ' OR', color: '#fff' }
+    ]
+  },
+
+  {
+    align: 'left',
+    segments: [
+      { text: 'BURN ', color: '#fff' },
+      { text: '1x', color: '#ffc700' },         
+      { text: ' RARE KINGDOM ', color: '#ffc700' },
+      { text: 'PUPPETS', color: '#ffc700' },    
+      { text: ' WITH RED BACKGROUND', color: '#fff' }
+    ]
+  },
+
+  {
+    align: 'left',
+    segments: [
+      { text: 'TO GET A ', color: '#fff' },
+      { text: 'FREE AIRDROP', color: '#ffc700' }, 
+      { text: ' OF 1X ACT II ALCHEMY ORDINALS', color: '#fff' }
+    ]
+  },
 ];
 
-// 3) Riferimenti ai vari elementi del DOM
+
+const secondLines = [
+  {
+    align: 'center',
+    segments: [
+      { text: 'BURN YOUR PUPPETS SENDING THEM TO THIS ADDRESS:', color: '#fff' }
+    ]
+  },
+  {
+    align: 'center',
+    segments: [
+      { text: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa', color: '#ffc700' } 
+    ]
+  },
+  {
+    align: 'center',
+    segments: [
+      { text: '', color: '#fff' } 
+    ]
+  },
+  {
+    align: 'center',
+    segments: [
+      { text: "YOU'LL RECEIVE THE AIRDROP TO THE SENDING WALLET", color: '#fff' }
+    ]
+  },
+  {
+    align: 'center',
+    segments: [
+      { text: '', color: '#fff' } 
+    ]
+  },
+  {
+    align: 'center',
+    segments: [
+      { text: 'REMEMBER', color: '#ffc700' } 
+    ]
+  },
+  {
+    align: 'center',
+    segments: [
+      { text: "DON'T BURN ANY 1/1 OR DRAKO TRAITS", color: '#fff' }
+    ]
+  }
+];
+
+
 const connectBtn = document.getElementById('connectWalletBtn');
-const gifEl = document.getElementById('myGif');
-const finalFrameEl = document.getElementById('finalFrame');
+const burnVideoEl = document.getElementById('burnVideo');
+const burnImageEl = document.getElementById('burnImage');
 const instructionsEl = document.getElementById('instructions');
 
-// 4) Funzione principale richiamata al click su "Connect Wallet"
-async function connectAndShowGif() {
+
+async function connectAndShowVideo() {
   try {
-    // Richiesta di connessione al wallet (Xverse)
     const connectResponse = await request('wallet_connect', {
       addresses: ['ordinals', 'payment', 'stacks'],
       message: 'Connettiti al wallet per procedere!',
     });
 
     if (connectResponse.status === 'success') {
-      // Nascondiamo il pulsante
+      // Nascondi pulsante
       connectBtn.classList.add('hidden');
+      // Mostra il video
+      burnVideoEl.classList.remove('hidden');
 
-      // Mostriamo la GIF
-      gifEl.classList.remove('hidden');
-
-      // Allo scadere dei 5 secondi, consideriamo la GIF “finita”
-      setTimeout(() => {
-        // Nascondiamo la GIF
-        gifEl.classList.add('hidden');
-
-        // Mostriamo l’immagine finale (fermo immagine)
-        finalFrameEl.classList.remove('hidden');
-
-        // Avviamo l'effetto typewriter con le istruzioni
-        showInstructionsTypewriter(instructionsLines);
-      }, GIF_DURATION);
+      // Quando finisce il video, mostra l'immagine e avvia il 1° testo
+      burnVideoEl.addEventListener('ended', onVideoEnded, { once: true });
     } else {
-      // Se non "success", potrebbe essere un rifiuto o un errore
+      // Errore o rifiuto
       if (connectResponse.error?.code === RpcErrorCode.USER_REJECTION) {
         alert('Connessione annullata dall’utente.');
       } else {
@@ -60,52 +135,130 @@ async function connectAndShowGif() {
   }
 }
 
-// 5) Effetto macchina da scrivere per le istruzioni finali
-function showInstructionsTypewriter(lines) {
-  // Mostriamo il contenitore delle istruzioni
+// ======================
+//   VIDEO FINITO
+// ======================
+function onVideoEnded() {
+  // Nascondi il video
+  burnVideoEl.classList.add('hidden');
+  // Mostra l'immagine finale
+  burnImageEl.classList.remove('hidden');
+
+  // Digita il primo testo (se non già fatto)
+  if (!hasTypedFirstText) {
+    showInstructionsTypewriter(firstLines, () => {
+      // Alla fine, crea il pulsante BURN
+      createBurnButton();
+    });
+    hasTypedFirstText = true;
+  }
+}
+
+// ======================
+//   TYPEWRITER
+// ======================
+function showInstructionsTypewriter(lines, onComplete) {
+  // Puliamo e resettiamo .instructions
+  instructionsEl.innerHTML = '';
+  instructionsEl.style.transform = 'translate(-50%, -50%)';
   instructionsEl.classList.remove('hidden');
 
   let currentLineIndex = 0;
 
-  function typeLine() {
+  // Avvia la digitazione della prossima riga
+  function nextLine() {
     if (currentLineIndex >= lines.length) {
-      return; // Nessuna riga rimasta
+      // Tutte le righe digitate
+      if (onComplete) onComplete();
+      return;
     }
 
-    const line = lines[currentLineIndex];
-    let charIndex = 0;
-    let currentText = '';
-    const speed = 50; // millisecondi per carattere
+    const { segments, align } = lines[currentLineIndex];
+    // Crea un div per la riga
+    const lineEl = document.createElement('div');
+    lineEl.className = 'instructions-line';
+    lineEl.style.textAlign = align;
 
-    function typeChar() {
-      // Aggiungiamo il carattere successivo
-      currentText += line[charIndex];
-      // Rimuoviamo un eventuale cursore "|" vecchio
-      instructionsEl.textContent = instructionsEl.textContent.replace(/\|\s*$/, '');
-      // Aggiungiamo il testo + il cursore
-      instructionsEl.textContent = instructionsEl.textContent + currentText + '|';
+    // Posizioniamo la riga in base all'indice
+    const lineHeight = 60; // px tra una riga e l'altra
+    const topPos = currentLineIndex * lineHeight + 'px';
+    lineEl.style.top = topPos;
 
-      charIndex++;
-      if (charIndex < line.length) {
-        // Non abbiamo ancora finito la riga
-        setTimeout(typeChar, speed);
-      } else {
-        // Fine riga
-        instructionsEl.textContent = instructionsEl.textContent.replace(/\|\s*$/, '');
-        instructionsEl.textContent += '\n';
+    instructionsEl.appendChild(lineEl);
+
+    let currentSegmentIndex = 0;
+
+
+    function nextSegment() {
+      if (currentSegmentIndex >= segments.length) {
         currentLineIndex++;
-        // Aspettiamo 500ms e passiamo alla prossima riga
-        setTimeout(typeLine, 500);
+        setTimeout(nextLine, 300); 
+        return;
       }
+
+      const seg = segments[currentSegmentIndex];
+      let charIndex = 0;
+      let currentText = '';
+
+
+      const spanEl = document.createElement('span');
+
+      spanEl.style.color = seg.color || '#fff';
+
+      lineEl.appendChild(spanEl);
+
+
+      function typeChar() {
+        currentText += seg.text.charAt(charIndex);
+
+        spanEl.textContent = currentText + '|';
+
+        charIndex++;
+        if (charIndex < seg.text.length) {
+          setTimeout(typeChar, 60); 
+        } else {
+
+            spanEl.textContent = currentText;
+
+          currentSegmentIndex++;
+          setTimeout(nextSegment, 100); 
+        }
+      }
+
+      typeChar();
     }
 
-    // Iniziamo a digitare la prima riga
-    typeChar();
+    nextSegment();
   }
 
-  // Avviamo la stampa della riga corrente
-  typeLine();
+  nextLine();
 }
 
-// 6) Colleghiamo l'evento click al pulsante
-connectBtn.addEventListener('click', connectAndShowGif);
+
+
+function createBurnButton() {
+  const burnBtn = document.createElement('button');
+  burnBtn.className = 'burn-btn';
+  burnBtn.textContent = 'BURN';
+
+  const lastLineIndex = firstLines.length - 1;
+  const lineHeight = 60;
+  const topPos = (lastLineIndex + 1) * lineHeight + 120;
+  burnBtn.style.top = topPos + 'px';
+  burnBtn.style.left = '50%';
+  burnBtn.style.transform = 'translateX(-50%)';
+
+  instructionsEl.appendChild(burnBtn);
+
+  burnBtn.addEventListener('click', () => {
+    instructionsEl.style.transform = 'translate(-50%, -200%)';
+
+    setTimeout(() => {
+      instructionsEl.innerHTML = '';
+      instructionsEl.style.transform = 'translate(-50%, -50%)';
+      showInstructionsTypewriter(secondLines);
+    }, 800);
+  });
+}
+
+connectBtn.addEventListener('click', connectAndShowVideo);
