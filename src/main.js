@@ -1,7 +1,7 @@
 import { request, RpcErrorCode } from 'sats-connect';
 
 // 1) Imposta la durata della GIF in millisecondi
-const GIF_DURATION = 5000; // 5 secondi
+const GIF_DURATION = 2000; // 5 secondi
 
 // 2) Righe da mostrare con l'effetto typewriter
 const instructionsLines = [
