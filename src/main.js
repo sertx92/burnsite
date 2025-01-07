@@ -1,72 +1,61 @@
-import {
-    request,
-    AddressPurpose,
-    RpcErrorCode,
-  } from 'sats-connect';
-  
-  async function connectAndSign() {
-    try {
-      // 1) Richiedi gli indirizzi dal wallet
-      const addressesResponse = await request('getAddresses', {
-        // Indichiamo i types di address che vogliamo richiedere
-        purposes: ['ordinals', 'payment', 'stacks'],
-        message: 'Questa app vuole accedere ai tuoi indirizzi per firmare un messaggio',
-      });
-  
-      console.log('addressesResponse', addressesResponse);
-  
-      if (addressesResponse.status !== 'success') {
-        alert('Richiesta di indirizzi rifiutata o errore generico.');
-        return;
-      }
-  
-      // 2) Prendiamo l’array di indirizzi
-      const allAddresses = addressesResponse.result; // array di { address, publicKey, purpose, ... }
-  
-      // Ad esempio, cerchiamo un payment address
-      const paymentAddressItem = allAddresses.find(
-        (item) => item.purpose === 'payment'
+import { request, AddressPurpose, RpcErrorCode } from 'sats-connect';
+
+async function connectWalletAndSign() {
+  try {
+    // Richiedi la connessione al wallet con gli indirizzi desiderati
+    const connectResponse = await request('wallet_connect', {
+      addresses: ['payment', 'ordinals'],
+      message: 'Questa app vuole connettersi al tuo wallet!'
+    });
+
+    if (connectResponse.status === 'success') {
+      console.log('Risposta wallet_connect:', connectResponse);
+
+      // Estrai gli indirizzi richiesti
+      const paymentAddress = connectResponse.addresses.find(
+        (address) => address.purpose === AddressPurpose.Payment
       );
-  
-      if (!paymentAddressItem) {
-        alert('Nessun indirizzo di tipo "payment" trovato.');
-        return;
+      const ordinalsAddress = connectResponse.addresses.find(
+        (address) => address.purpose === AddressPurpose.Ordinals
+      );
+
+      if (paymentAddress) {
+        console.log('Indirizzo di pagamento:', paymentAddress.address);
       }
-  
-      // 3) Ora firmiamo un messaggio col payment address
+      if (ordinalsAddress) {
+        console.log('Indirizzo ordinals:', ordinalsAddress.address);
+      }
+
+      // Firma un messaggio con l'indirizzo di pagamento (esempio)
+      const messageToSign = 'Questo è un messaggio di test da firmare.';
       const signResponse = await request('signMessage', {
-        address: paymentAddressItem.address,
-        message: 'Hello from SatsConnect!',
+        address: paymentAddress.address, // Usa l'indirizzo di pagamento
+        message: messageToSign
       });
-  
-      console.log('signResponse', signResponse);
-  
+
       if (signResponse.status === 'success') {
-        // Firma avvenuta con successo
-        alert(
-          'Messaggio firmato!\n\n' +
-            `Signature: ${signResponse.signature}\n` +
-            `Message Hash: ${signResponse.messageHash}\n` +
-            `Address: ${signResponse.address}`
-        );
+        console.log('Firma completata con successo:', signResponse);
+        alert('Messaggio firmato con successo!');
       } else {
-        // Se non è "success", può essere un errore o rifiuto
-        if (signResponse.error?.code === RpcErrorCode.USER_REJECTION) {
-          alert('Richiesta di firma annullata dall’utente.');
+        if (signResponse.error.code === RpcErrorCode.USER_REJECTION) {
+          alert('Firma annullata dall'utente.');
         } else {
-          alert(
-            `Errore nella firma: ${signResponse.error?.message || 'Sconosciuto'}`
-          );
+          alert('Errore nella firma del messaggio: ' + signResponse.error.message);
         }
       }
-    } catch (err) {
-      console.error('Errore generale:', err);
-      alert('Si è verificato un errore: ' + err.message);
+    } else {
+      if (connectResponse.error.code === RpcErrorCode.USER_REJECTION) {
+        alert('Connessione annullata dall'utente.');
+      } else {
+        alert('Errore nella connessione: ' + connectResponse.error.message);
+      }
     }
+  } catch (error) {
+    console.error('Errore durante il processo:', error);
+    alert('Errore durante il processo: ' + error.message);
   }
-  
-  // Attacchiamo la funzione al click del pulsante
-  document
-    .getElementById('connectWalletBtn')
-    .addEventListener('click', connectAndSign);
-  
+}
+
+document
+  .getElementById('connectWalletBtn')
+  .addEventListener('click', connectWalletAndSign);
