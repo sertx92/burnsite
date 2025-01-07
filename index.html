@@ -2,9 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>SatsConnect Demo</title>
+    <title>SatsConnect getAddresses + signMessage</title>
   </head>
-  <body style="margin: 0; padding: 0; font-family: sans-serif;">
+  <body style="margin:0; padding:0; font-family:sans-serif;">
     <div
       style="
         display: flex;
@@ -13,12 +13,15 @@
         height: 100vh;
       "
     >
-      <button id="connectWalletBtn" style="font-size: 1.2rem; padding: 1rem;">
-        Connect Wallet
+      <button
+        id="connectWalletBtn"
+        style="font-size:1.2rem; padding:1rem; cursor: pointer;"
+      >
+        Connect & Sign
       </button>
     </div>
 
-    <!-- Collegamento al nostro script principale gestito da Vite -->
+    <!-- Il nostro script principale -->
     <script type="module" src="./src/main.js"></script>
   </body>
 </html>

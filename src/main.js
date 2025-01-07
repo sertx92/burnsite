@@ -1,34 +1,72 @@
 import {
     request,
-    AddressPurpose
+    AddressPurpose,
+    RpcErrorCode,
   } from 'sats-connect';
   
-  async function connectWallet() {
+  async function connectAndSign() {
     try {
-      // Richiedi gli account dal wallet
-      const accountsResponse = await request('getAccounts', {
-        purposes: [
-          AddressPurpose.Payment,
-          AddressPurpose.Ordinals,
-          AddressPurpose.Stacks,
-        ],
-        message: 'Questa app vuole connettersi al tuo wallet!',
+      // 1) Richiedi gli indirizzi dal wallet
+      const addressesResponse = await request('getAddresses', {
+        // Indichiamo i types di address che vogliamo richiedere
+        purposes: ['ordinals', 'payment', 'stacks'],
+        message: 'Questa app vuole accedere ai tuoi indirizzi per firmare un messaggio',
       });
   
-      console.log('accountsResponse', accountsResponse);
+      console.log('addressesResponse', addressesResponse);
   
-      if (accountsResponse.status === 'success') {
-        alert('Wallet connesso con successo!');
-      } else {
-        alert('Connessione annullata o errore');
+      if (addressesResponse.status !== 'success') {
+        alert('Richiesta di indirizzi rifiutata o errore generico.');
+        return;
       }
-    } catch (error) {
-      console.error('Errore nella connessione:', error);
-      alert('Errore durante la connessione: ' + error.message);
+  
+      // 2) Prendiamo l’array di indirizzi
+      const allAddresses = addressesResponse.result; // array di { address, publicKey, purpose, ... }
+  
+      // Ad esempio, cerchiamo un payment address
+      const paymentAddressItem = allAddresses.find(
+        (item) => item.purpose === 'payment'
+      );
+  
+      if (!paymentAddressItem) {
+        alert('Nessun indirizzo di tipo "payment" trovato.');
+        return;
+      }
+  
+      // 3) Ora firmiamo un messaggio col payment address
+      const signResponse = await request('signMessage', {
+        address: paymentAddressItem.address,
+        message: 'Hello from SatsConnect!',
+      });
+  
+      console.log('signResponse', signResponse);
+  
+      if (signResponse.status === 'success') {
+        // Firma avvenuta con successo
+        alert(
+          'Messaggio firmato!\n\n' +
+            `Signature: ${signResponse.signature}\n` +
+            `Message Hash: ${signResponse.messageHash}\n` +
+            `Address: ${signResponse.address}`
+        );
+      } else {
+        // Se non è "success", può essere un errore o rifiuto
+        if (signResponse.error?.code === RpcErrorCode.USER_REJECTION) {
+          alert('Richiesta di firma annullata dall’utente.');
+        } else {
+          alert(
+            `Errore nella firma: ${signResponse.error?.message || 'Sconosciuto'}`
+          );
+        }
+      }
+    } catch (err) {
+      console.error('Errore generale:', err);
+      alert('Si è verificato un errore: ' + err.message);
     }
   }
   
+  // Attacchiamo la funzione al click del pulsante
   document
     .getElementById('connectWalletBtn')
-    .addEventListener('click', connectWallet);
+    .addEventListener('click', connectAndSign);
   
