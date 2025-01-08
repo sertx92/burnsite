@@ -3,12 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <title>Burn Video (No Wallet Connect)</title>
+    <!-- Se style.css è nella stessa cartella di index.html -->
     <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
     <!-- Sfondo a tutto schermo con l’immagine liberate.png -->
+    <!-- RIMOSSA LA / INIZIALE --> 
     <img
-      src="/liberate.png"
+      src="./liberate.png"
       alt="Sfondo"
       class="fullscreen-image"
       id="startBackground"
@@ -20,19 +22,21 @@
     </button>
 
     <!-- VIDEO a schermo intero, nascosto inizialmente -->
+    <!-- RIMOSSA LA / INIZIALE --> 
     <video
       id="burnVideo"
       class="fullscreen-video hidden"
-      src="/burn.mp4"
+      src="./burn.mp4"
       autoplay
       playsinline
       muted
     ></video>
 
     <!-- Immagine finale, nascosta finché non termina il video -->
+    <!-- RIMOSSA LA / INIZIALE --> 
     <img
       id="burnImage"
-      src="/burn.png"
+      src="./burn.png"
       alt="Burn Image"
       class="fullscreen-video hidden"
     />
@@ -40,7 +44,7 @@
     <!-- Contenitore per il testo (prima e seconda fase) -->
     <div id="instructions" class="instructions hidden"></div>
 
-    <!-- Script principale -->
+    <!-- Script principale (se src/main.js è davvero in /src/) -->
     <script type="module" src="./src/main.js"></script>
   </body>
 </html>
