@@ -2,19 +2,25 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Connect & Burn Video</title>
-    <!-- Collega il CSS principale -->
-    <script type="module" crossorigin src="/burnsite/assets/index-B5bbL7nQ.js"></script>
-    <link rel="stylesheet" crossorigin href="/burnsite/assets/index-CSmc7m4T.css">
+    <title>Burn Video (No Wallet Connect)</title>
+    <script type="module" crossorigin src="/burnsite/assets/index-DUrQbkPD.js"></script>
+    <link rel="stylesheet" crossorigin href="/burnsite/assets/index-Con3OVta.css">
   </head>
   <body>
-    <!-- Pulsante CONNECT WALLET -->
-    <button id="connectWalletBtn" class="connect-btn">
-      CONNECT WALLET
+    <!-- Sfondo a tutto schermo con l’immagine liberate.png -->
+    <img
+      src="/burnsite/liberate.png"
+      alt="Sfondo"
+      class="fullscreen-image"
+      id="startBackground"
+    />
+
+    <!-- Pulsante per avviare il video -->
+    <button id="startBtn" class="connect-btn">
+      LIBERATE YOUR PUPPET
     </button>
 
-    <!-- VIDEO a schermo intero, nascosto inizialmente.
-         autoplay + muted + playsinline => parte subito in silenzioso -->
+    <!-- VIDEO a schermo intero, nascosto inizialmente -->
     <video
       id="burnVideo"
       class="fullscreen-video hidden"

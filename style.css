@@ -1,103 +1,141 @@
 /* Reset di base */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Pagina a pieno schermo, sfondo nero */
+html,
+body {
+  width: 100%;
+  height: 100%;
+  background: black;
+  overflow: hidden; /* niente scrollbar */
+}
+
+/* (Opzionale) Carichiamo un font personalizzato */
+@font-face {
+  font-family: 'BurnFont';
+  src: url('./fonts/burn.ttf') format('truetype');
+}
+
+/* Sfondo iniziale a tutto schermo (liberate.png) */
+.fullscreen-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0; /* Sullo sfondo */
+}
+
+/* Pulsante iniziale con sfondo nero */
+.connect-btn {
+  position: absolute;
+  z-index: 1; /* sopra l’immagine di sfondo */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   
-  /* Pagina a pieno schermo, sfondo nero */
-  html,
-  body {
-    width: 100%;
-    height: 100%;
-    background: black;
-    overflow: hidden; /* niente scrollbar */
-  }
+  background: black;
+  color: white;
+  text-transform: uppercase;
+  font-family: 'BurnFont', sans-serif;
+  font-size: 1.8rem;
+  letter-spacing: 2px;
   
-  /* Carichiamo il font personalizzato burn.ttf */
-  @font-face {
-    font-family: 'BurnFont';
-    src: url('./fonts/burn.ttf') format('truetype');
-  }
-  
-  /* Pulsante CONNECT WALLET */
-  .connect-btn {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  
-    background: transparent;
-    color: white;
-    text-transform: uppercase;
-    font-family: 'BurnFont', sans-serif;
-    font-size: 1.8rem;
-    letter-spacing: 2px;
-    border: 3px solid rgba(255, 255, 255, 0.6);
-    padding: 1rem 2rem;
-    cursor: pointer;
-  }
-  
-  .connect-btn:hover {
-    border-color: white;
-  }
-  
-  /* Video e immagine a tutto schermo */
-  .fullscreen-video {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
-  /* Elementi nascosti */
-  .hidden {
-    display: none;
-  }
-  
-  /* Contenitore globale del testo digitato */
-  .instructions {
-    position: absolute;
-    top: 20%;
-    left: 50%;
-    width: 80%;
-    transform: translate(-50%, -50%);
-    /* Per l'animazione "uscita verso l'alto" */
-    transition: transform 0.8s ease-in-out;
-  
-    color: white;
-    font-family: 'BurnFont', sans-serif;
-    font-size: 2rem;
-    line-height: 1.5;
-    white-space: pre-wrap; /* gestisce \n */
-    text-align: center;
-  }
-  
-  /* Ogni riga di testo */
-  .instructions-line {
-    position: absolute;
-    width: 100%;
-    /* Niente background “macchia” */
-    padding: 0.3rem 0.6rem;
-  }
-  
-  /* Pulsante "BURN" (seconda fase) */
-  .burn-btn {
-    position: absolute;
-    padding: 1rem 2rem;
-    background: black;
-    color: white;
-    border: 2px solid white;
-    font-size: 1.2rem;
-    cursor: pointer;
-    font-family: 'BurnFont', sans-serif;
-    text-transform: uppercase;
-    transition: background 0.3s;
-  }
-  
-  .burn-btn:hover {
-    background: #333;
-  }
-  
+  border: 3px solid rgba(255, 255, 255, 0.6);
+  padding: 1rem 2rem;
+  cursor: pointer;
+}
+
+.connect-btn:hover {
+  border-color: white;
+}
+
+/* Video e immagine finale a tutto schermo */
+.fullscreen-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+/* Elementi nascosti */
+.hidden {
+  display: none;
+}
+
+/* Contenitore globale del testo digitato (prima/seconda fase) */
+/* Adesso top: 20% per spostarlo più in alto */
+.instructions {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  width: 80%;
+  transform: translate(-50%, 0);
+  transition: transform 0.8s ease-in-out; /* per l'uscita verso l'alto */
+
+  color: white;
+  font-family: 'BurnFont', sans-serif;
+  font-size: 2rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  text-align: center;
+  z-index: 2; /* sopra video/immagini */
+}
+
+/* Ogni riga di testo */
+.instructions-line {
+  position: absolute;
+  width: 100%;
+  padding: 0.3rem 0.6rem;
+}
+
+/* Pulsante "BURN" (seconda fase) */
+.burn-btn {
+  position: absolute;
+  padding: 1rem 2rem;
+  background: black;
+  color: white;
+  border: 2px solid white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  font-family: 'BurnFont', sans-serif;
+  text-transform: uppercase;
+  transition: background 0.3s;
+}
+
+.burn-btn:hover {
+  background: #333;
+}
+
+/* Pulsante COPY */
+.copy-btn {
+  margin-left: 1rem;
+  padding: 0.4rem 1rem;
+  background: #222;
+  color: white;
+  border: 2px solid white;
+  font-size: 1rem;
+  cursor: pointer;
+  font-family: 'BurnFont', sans-serif;
+  text-transform: uppercase;
+  transition: background 0.3s;
+}
+
+.copy-btn:hover {
+  background: #333;
+}
+
+/* Testo aggiuntivo "COPY ADDRESS" */
+.copy-label {
+  margin-left: 0.8rem;
+  font-size: 1rem;
+  color: #ccc;
+}
