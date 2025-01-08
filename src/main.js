@@ -50,7 +50,7 @@ const secondLines = [
   {
     align: 'center',
     segments: [
-      { text: 'BURN YOUR PUPPETS SENDING THEM TO THIS ADDRESS:', color: '#fff' }
+      { text: 'BURN YOUR PUPPETS BY SENDING THEM TO THIS ADDRESS:', color: '#fff' }
     ]
   },
   {
